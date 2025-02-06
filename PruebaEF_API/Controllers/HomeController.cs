@@ -36,6 +36,14 @@ namespace PruebaEF_API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("/get/documentos")]
+        public int GetDocumento(string documento)
+        {
+            var id = _dbContext.TipoDocumentos.First(i=>i.Documento.Equals(documento)).IdDocumento;
+            return id;
+        }
+
         [HttpPost]
         [Route("/post/persona")]
         public async Task<Response> PostPersona(PersonaDto personaDto)
@@ -191,7 +199,7 @@ namespace PruebaEF_API.Controllers
                     TipoDocumento = item.IdDocumentoNavigation.Documento,
                     Documento = item.Documento,
                     EstadoCivil = item.IdEstadoCivilNavigation?.EstadoCivil1,
-                    FechaNacmiento = item.FechaNcacimiento.Date,
+                    FechaNacmiento = item.FechaNcacimiento,
                     Fecha = item.Fecha,
                     ValorGanar = item.ValorGanar
                 });

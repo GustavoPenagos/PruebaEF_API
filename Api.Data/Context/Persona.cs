@@ -15,7 +15,7 @@ public partial class Persona
 
     public string Documento { get; set; } = null!;
 
-    public DateTime FechaNcacimiento { get; set; }
+    public DateOnly FechaNcacimiento { get; set; }
 
     public DateTime Fecha { get; set; }
 

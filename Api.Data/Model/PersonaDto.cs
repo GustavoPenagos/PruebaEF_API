@@ -24,10 +24,9 @@ public partial class PersonaDto
     public string? EstadoCivil { get; set; }
 
     [JsonPropertyName("FechaNacimiento")]
-    public DateTime FechaNacmiento { get; set; }
+    public DateOnly FechaNacmiento { get; set; }
 
     [JsonPropertyName("Fecha")]
-    [JsonIgnore]
     public DateTime Fecha { get; set; } = DateTime.Now;
 
     [JsonPropertyName("ValorGanar")]
