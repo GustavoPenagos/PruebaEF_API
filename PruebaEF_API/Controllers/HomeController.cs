@@ -205,15 +205,13 @@ namespace PruebaEF_API.Controllers
 
         private bool ValidarDatos(PersonaDto personaDto, ref Persona item)
         {
-            if (!string.IsNullOrEmpty(personaDto.Nombres) && item?.Nombres != personaDto.Nombres)
+            if (!string.IsNullOrEmpty(personaDto.Nombres))
                 item.Nombres = personaDto.Nombres;
-            if (!string.IsNullOrEmpty(personaDto.Apellidos) && item.Apellido != personaDto.Apellidos)
+            if (!string.IsNullOrEmpty(personaDto.Apellidos))
                 item.Apellido = personaDto.Apellidos;
-            if(!string.IsNullOrEmpty(personaDto.FechaNacmiento) && item.FechaNcacimiento.ToString() != personaDto.FechaNacmiento)
-                item.FechaNcacimiento = DateOnly.FromDateTime(Convert.ToDateTime(personaDto.FechaNacmiento));
-            if (!string.IsNullOrEmpty(personaDto.ValorGanar.ToString()) && item.ValorGanar != personaDto.ValorGanar)
+            if (!string.IsNullOrEmpty(personaDto.ValorGanar.ToString()) && personaDto.ValorGanar != 0)
                 item.ValorGanar = personaDto.ValorGanar;
-            if (!string.IsNullOrEmpty(personaDto.EstadoCivil?.ToString()) && item.IdEstadoCivilNavigation?.IdEstadoCivil.ToString() != personaDto.EstadoCivil)
+            if (!string.IsNullOrEmpty(personaDto.EstadoCivil?.ToString()))
                 item.IdEstadoCivil = Convert.ToInt32(personaDto.EstadoCivil);
 
             return true;
@@ -228,6 +226,7 @@ namespace PruebaEF_API.Controllers
                 Documento = personaDto.Documento,
                 IdDocumento = Convert.ToInt32(personaDto.TipoDocumento),
                 FechaNcacimiento = DateOnly.FromDateTime(Convert.ToDateTime(personaDto.FechaNacmiento)),
+                Fecha = Convert.ToDateTime(personaDto.Fecha),
                 IdEstadoCivil = Convert.ToInt32(personaDto.EstadoCivil),
                 ValorGanar = personaDto.ValorGanar
             };
@@ -247,7 +246,7 @@ namespace PruebaEF_API.Controllers
                     Documento = item.Documento,
                     EstadoCivil = item.IdEstadoCivilNavigation?.EstadoCivil1,
                     FechaNacmiento = item.FechaNcacimiento.ToString(),
-                    Fecha = item.Fecha.ToString("dd/MM/yyyy"),
+                    Fecha = item.Fecha.ToString("dd/MMM/yyyy"),
                     ValorGanar = item.ValorGanar
                 });
             }
