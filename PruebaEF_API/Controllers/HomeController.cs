@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Api.Data.Repository.Response;
 using System.ComponentModel;
+using Api.Data.Model;
 
 namespace PruebaEF_API.Controllers
 {
@@ -19,7 +20,7 @@ namespace PruebaEF_API.Controllers
 
 
         [HttpGet]
-        [Route("/get/persona")]
+        [Route("/get/person")]
         public async Task<List<PersonaDto>> GetPersona()
         {
             try
@@ -37,15 +38,67 @@ namespace PruebaEF_API.Controllers
         }
 
         [HttpGet]
-        [Route("/get/documentos")]
+        [Route("/get/personbyid")]
+        public async Task<List<PersonaDto>> GetPersona(string documento)
+        {
+            try
+            {
+                var persona = await _dbContext.Personas.Where(i=>i.Documento.Equals(documento)).Include(i => i.IdDocumentoNavigation).Include(i => i.IdEstadoCivilNavigation).ToListAsync();
+
+                return AsignarCampos(persona);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        [HttpGet]
+        [Route("/get/document")]
         public int GetDocumento(string documento)
         {
             var id = _dbContext.TipoDocumentos.First(i=>i.Documento.Equals(documento)).IdDocumento;
             return id;
         }
 
+        [HttpGet]
+        [Route("/get/AllDocuments")]
+        public async Task<List<DocumentoDto>> GetDocumento()
+        {
+            List<DocumentoDto> dto = [];
+            var documento = await _dbContext.TipoDocumentos.ToListAsync();
+            foreach(var item in documento)
+            {
+                dto.Add(new DocumentoDto
+                {
+                    IdDocumento = item.IdDocumento,
+                    Documento = item.Documento
+                });
+            }
+            return dto;
+        }
+
+        [HttpGet]
+        [Route("/get/AllMartalStatus")]
+        public async Task<List<EstadoCivilDto>> GetEstadoCivil()
+        {
+            List<EstadoCivilDto> civils = [];
+            var maritalStatul = await _dbContext.EstadoCivils.ToListAsync();
+            foreach (var item in maritalStatul)
+            {
+                civils.Add(new EstadoCivilDto
+                {
+                    IdEstadoCivil = item.IdEstadoCivil,
+                    EstadoCivil1 = item.EstadoCivil1
+                });
+            }
+            return civils;
+        }
+
         [HttpPost]
-        [Route("/post/persona")]
+        [Route("/post/person")]
         public async Task<Response> PostPersona(PersonaDto personaDto)
         {
             try
@@ -75,7 +128,7 @@ namespace PruebaEF_API.Controllers
         }
 
         [HttpPut]
-        [Route("/put/persona")]
+        [Route("/put/person")]
         public async Task<Response> PutPersona(PersonaDto personaDto)
         {
             try
@@ -114,7 +167,7 @@ namespace PruebaEF_API.Controllers
         }
 
         [HttpDelete]
-        [Route("/delete/persona")]
+        [Route("/delete/person")]
         public async Task<Response> DetetePersona(int tipo, string documento)
         {
             try
@@ -150,25 +203,19 @@ namespace PruebaEF_API.Controllers
             }
         }
 
-        private bool ValidarDatos(PersonaDto personaDto, ref Persona? item)
+        private bool ValidarDatos(PersonaDto personaDto, ref Persona item)
         {
-            if (!string.IsNullOrEmpty(personaDto.Nombres))
-            {
+            if (!string.IsNullOrEmpty(personaDto.Nombres) && item?.Nombres != personaDto.Nombres)
                 item.Nombres = personaDto.Nombres;
-            }
-            if (!string.IsNullOrEmpty(personaDto.Apellidos))
-            {
+            if (!string.IsNullOrEmpty(personaDto.Apellidos) && item.Apellido != personaDto.Apellidos)
                 item.Apellido = personaDto.Apellidos;
-            }
-            if (!string.IsNullOrEmpty(personaDto.ValorGanar.ToString()))
-            {
+            if(!string.IsNullOrEmpty(personaDto.FechaNacmiento) && item.FechaNcacimiento.ToString() != personaDto.FechaNacmiento)
+                item.FechaNcacimiento = DateOnly.FromDateTime(Convert.ToDateTime(personaDto.FechaNacmiento));
+            if (!string.IsNullOrEmpty(personaDto.ValorGanar.ToString()) && item.ValorGanar != personaDto.ValorGanar)
                 item.ValorGanar = personaDto.ValorGanar;
-            }
-            if (!string.IsNullOrEmpty(personaDto.EstadoCivil.ToString()))
-            {
+            if (!string.IsNullOrEmpty(personaDto.EstadoCivil?.ToString()) && item.IdEstadoCivilNavigation?.IdEstadoCivil.ToString() != personaDto.EstadoCivil)
                 item.IdEstadoCivil = Convert.ToInt32(personaDto.EstadoCivil);
-            }
-                
+
             return true;
         }
 
@@ -180,7 +227,7 @@ namespace PruebaEF_API.Controllers
                 Apellido = personaDto.Apellidos,
                 Documento = personaDto.Documento,
                 IdDocumento = Convert.ToInt32(personaDto.TipoDocumento),
-                FechaNcacimiento = personaDto.FechaNacmiento,
+                FechaNcacimiento = DateOnly.FromDateTime(Convert.ToDateTime(personaDto.FechaNacmiento)),
                 IdEstadoCivil = Convert.ToInt32(personaDto.EstadoCivil),
                 ValorGanar = personaDto.ValorGanar
             };
@@ -199,8 +246,8 @@ namespace PruebaEF_API.Controllers
                     TipoDocumento = item.IdDocumentoNavigation.Documento,
                     Documento = item.Documento,
                     EstadoCivil = item.IdEstadoCivilNavigation?.EstadoCivil1,
-                    FechaNacmiento = item.FechaNcacimiento,
-                    Fecha = item.Fecha,
+                    FechaNacmiento = item.FechaNcacimiento.ToString(),
+                    Fecha = item.Fecha.ToString("dd/MM/yyyy"),
                     ValorGanar = item.ValorGanar
                 });
             }
